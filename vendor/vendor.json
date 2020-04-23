@@ -1,0 +1,37 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "yXpBiv3nBhH9GwaEhUKOlVmSNCA=",
+			"path": "github.com/PuerkitoBio/goquery",
+			"revision": "844d6bd46b293ce07cd2e48d259f6ea2b48e31b6",
+			"revisionTime": "2020-02-24T23:34:32Z"
+		},
+		{
+			"checksumSHA1": "5+cxNn3sDME26yhsgvaPruo66gw=",
+			"path": "github.com/andybalholm/cascadia",
+			"revision": "903109d295d56a99095f2cfab0c2ca8d4b22f648",
+			"revisionTime": "2019-11-15T16:53:31Z"
+		},
+		{
+			"checksumSHA1": "4UM46yugcc85WrOsDVcbo+uojuE=",
+			"path": "github.com/json-iterator/go",
+			"revision": "53b9d06ba7ca7edaa0d08a1c5acb0ef75c91eed4",
+			"revisionTime": "2020-03-30T08:42:45Z"
+		},
+		{
+			"checksumSHA1": "R7UwDjqiaLRoaEanrANwPOfbgN4=",
+			"path": "github.com/modern-go/concurrent",
+			"revision": "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94",
+			"revisionTime": "2018-03-06T01:26:44Z"
+		},
+		{
+			"checksumSHA1": "SnVnj87vJdiHFJUcwdL03T0ZMhI=",
+			"path": "github.com/modern-go/reflect2",
+			"revision": "94122c33edd36123c84d5368cfb2b69df93a0ec8",
+			"revisionTime": "2018-07-18T01:23:57Z"
+		}
+	],
+	"rootPath": "test"
+}
