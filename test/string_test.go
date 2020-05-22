@@ -18,6 +18,10 @@ func TestString(t *testing.T) {
 	runeArr := []rune(s)
 	t.Log(runeArr[0], runeArr)
 	// 必须为utf8的三个byte，不能为rune（Unicode）的2个
-	s2 := "\xe5\x93\x88\xe4\xb8\x8b\xe5\x95\x8a"//哈下啊
+	s2 := "\xe5\x93\x88\xe4\xb8\x8b\xe5\x95\x8a" //哈下啊
 	t.Log(s2, s2[3:6])
+}
+
+func TestInt(t *testing.T) {
+	t.Log(float32(12121) / 1024)
 }

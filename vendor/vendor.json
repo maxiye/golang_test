@@ -15,6 +15,12 @@
 			"revisionTime": "2019-11-15T16:53:31Z"
 		},
 		{
+			"checksumSHA1": "rMyrwMX+0Yn2hSCw8ixRTCIkOF8=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "128a6737a20278b625f8de647998fec7b7a2dc3e",
+			"revisionTime": "2020-05-21T13:24:19Z"
+		},
+		{
 			"checksumSHA1": "4UM46yugcc85WrOsDVcbo+uojuE=",
 			"path": "github.com/json-iterator/go",
 			"revision": "53b9d06ba7ca7edaa0d08a1c5acb0ef75c91eed4",
@@ -33,5 +39,5 @@
 			"revisionTime": "2018-07-18T01:23:57Z"
 		}
 	],
-	"rootPath": "test"
+	"rootPath": "golang_test"
 }
