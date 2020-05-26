@@ -22,7 +22,9 @@ func main() {
 	flag.BoolVar(&rewrite, "r", false, "删除已有数据")
 	flag.Parse()
 	if host == "" || user == "" || pass == "" || database == "" {
-		panic("参数输入错误，使用 --help 确认参数列表")
+		fmt.Println("参数输入错误，使用 --help 确认参数列表")
+		flag.Usage()
+		os.Exit(0)
 	}
 	checkFile(rewrite)
 	dbDsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s", user, pass, host, port, database, charset)
@@ -121,7 +123,7 @@ func checkFile(rewrite bool) {
 			fmt.Println("database.csv删除失败：" + err.Error())
 		}
 		if err := os.Remove("tables.csv"); err != nil {
-			fmt.Println("database.csv删除失败：" + err.Error())
+			fmt.Println("tables.csv删除失败：" + err.Error())
 		}
 	}
 	_, err := os.Stat("database.csv")

@@ -54,6 +54,34 @@ func TestSliceAppend(t *testing.T) {
 	}
 }
 
+func TestSliceCopy(t *testing.T) {
+	a := []int{1, 2, 3}
+	b := append(a, 4)
+	t.Logf("a:%d cap(a):%d; b:%d cap(b):%d", a, cap(a), b, cap(b))
+	// // append后cap发生改变时，a的操作不会影响到b
+	c := append(a, 5)
+	t.Logf("a:%d cap(a):%d; b:%d cap(b):%d; c:%d cap(c):%d", a, cap(a), b, cap(b), c, cap(c))
+	d := append(b, 6)
+	e := append(b, 7)
+	// cap不改变，影响到d
+	t.Log(b, d, e)
+}
+
+func TestSliceRefrence(t *testing.T) {
+	a := make([]int, 1, 300)
+	b := append(a, 4)
+	a[0] = 0
+	t.Log(a, b)
+	b[1] = 3
+	t.Log(a, b)
+	c := append(a, 5)
+	t.Log(a, b, c)
+	d := append(a, 6)
+	// cap未发生改变时，append都是在原数组上操作的，会影响到所有使用统一原始数组的slice
+	t.Log(cap(a), cap(b), cap(c), cap(d))
+	t.Log(a, b, c, d)
+}
+
 func TestJson(t *testing.T) {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	t.Log(json.NewEncoder(os.Stdout).Encode(map[string]interface{}{"aa": "bb", "bb": 1, "cc": [2]int{1, 2}}))
