@@ -7,10 +7,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strconv"
+	"strings"
+	"sync"
 )
 
 func main() {
-	// -h 172.17.12.152 -u root -p im2NCnCwweA= -d xq_2345
+	// -h 172.17.12.152 -u root -p im2NCnCwweA= -d xqdata_2345
 	var host, port, user, pass, database, charset string
 	var rewrite bool
 	flag.StringVar(&host, "h", "", "host，ip地址")
@@ -27,72 +29,215 @@ func main() {
 		os.Exit(0)
 	}
 	checkFile(rewrite)
-	dbDsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s", user, pass, host, port, database, charset)
-	db, err := sql.Open("mysql", dbDsn)
-	if err != nil {
-		panic("数据源配置不正确: " + err.Error())
-	}
-	if _, err = db.Exec("SELECT 1"); err != nil {
-		panic("连接建立失败：" + err.Error())
-	}
-	fmt.Println("数据库连接成功...")
-	tableStat := make([]map[string]string, 0, 6000)
-	var dbTables, dbColNums int
-	var dbLength float64 = 0 //mb
-	offset := 0
-	fmt.Println("开始查询数据...")
-	for {
-		rows, err := db.Query("SELECT `TABLE_SCHEMA`,`TABLE_NAME`,IFNULL(`DATA_LENGTH`,0),`TABLE_COMMENT` FROM information_schema.`TABLES` WHERE `TABLE_SCHEMA` = ? limit 50 offset ?", database, offset)
+	dbList := strings.Split(database, ",")
+	for _, dbName := range dbList {
+		fmt.Println("--------开始操作数据库：" + dbName + "--------")
+		dbDsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s", user, pass, host, port, dbName, charset)
+		db, err := sql.Open("mysql", dbDsn)
 		if err != nil {
-			fmt.Println("表查询失败：" + err.Error())
+			fmt.Println("数据源配置不正确: " + err.Error())
 			continue
 		}
-		resCount := 0
-		for rows.Next() {
-			resCount++
-			var dbName, table, comment string
-			var length uint64
-			if err = rows.Scan(&dbName, &table, &length, &comment); err != nil {
-				fmt.Println("获取数据失败", err.Error())
-			}
-			columnRes, err := db.Query("select count(*) from information_schema.COLUMNS where table_name = ? and table_schema = ?", table, dbName)
-			columnCount := 0
-			if err == nil && columnRes.Next() {
-				if err = columnRes.Scan(&columnCount); err != nil {
-					fmt.Println(table + "表 字段数查询失败：" + err.Error())
-				}
-				if err = columnRes.Close(); err != nil {
-					fmt.Println("columnRes数据库连接关闭失败：" + err.Error())
-				}
-			} else if err != nil {
-				fmt.Println("获取字段数量失败" + err.Error())
-			}
-			dbColNums += columnCount
-			dbLength += float64(length) / 1024 / 1024
-			tableInfo := map[string]string{
-				"dbName":      dbName,
-				"table":       table,
-				"comment":     comment,
-				"columnCount": strconv.Itoa(columnCount),
-				"length":      strconv.FormatUint(length, 10), //byte
-			}
-			tableStat = append(tableStat, tableInfo)
+		db.SetMaxIdleConns(10)
+		db.SetMaxOpenConns(22)
+		if err = db.Ping(); err != nil {
+			fmt.Println("连接建立失败：" + err.Error())
+			continue
 		}
-		dbTables += resCount
-		if err = rows.Close(); err != nil {
-			fmt.Println("数据库连接关闭失败：" + err.Error())
+		fmt.Println("数据库连接成功...")
+		// 统计数据库，表大小
+		statSize(db, dbName)
+		// 统计数据库字段
+		statFields(db, dbName)
+		_ = db.Close()
+		fmt.Println("--------结束操作数据库：" + dbName + "--------")
+	}
+}
+
+func checkFile(rewrite bool) {
+	fileList := map[string]string{
+		"database.csv": "数据库名称,表的数量,字段数量,占磁盘容量（TB）\r\n",
+		"tables.csv":   "数据库名称,表名,表中文名,字段数量,占磁盘容量（GB）\r\n",
+		"fields.csv":   "数据库名称,表名,字段名,数据类型,字段说明\r\n",
+	}
+	for fName, title := range fileList {
+		if rewrite {
+			if err := os.Remove(fName); err != nil {
+				fmt.Println(fName + "删除失败：" + err.Error())
+			}
 		}
-		if resCount != 50 {
+		_, err := os.Stat(fName)
+		if err != nil && os.IsNotExist(err) {
+			if file, err := os.Create(fName); err != nil {
+				panic("文件创建失败" + err.Error())
+			} else {
+				if _, err := file.Write([]byte(title)); err != nil {
+					panic("文件写入失败" + err.Error())
+				}
+			}
+		}
+	}
+}
+
+func handleStr(str string) string {
+	str = strings.ReplaceAll(str, ",", "")
+	str = strings.ReplaceAll(str, "\r", "")
+	str = strings.ReplaceAll(str, "\n", "")
+	return str
+}
+
+func statFields(db *sql.DB, database string) {
+	fmt.Println("开始统计字段信息")
+	offset, limit, goSize := 0, 1000, 10
+	var end bool
+	var wgWrite sync.WaitGroup
+	wgWrite.Add(1)
+	resChan := writeDataToFile(&wgWrite, "fields.csv", func(item *map[string]string) string {
+		info := *item
+		return fmt.Sprintf("%s,%s,%s,%s,%s\r\n", info["dbName"], info["table"], info["column"], info["columnType"], info["columnComment"])
+	})
+	for {
+		var wg sync.WaitGroup
+		for i := 0; i < goSize; i++ {
+			wg.Add(1)
+			go func(offset int) {
+				defer wg.Done()
+				columnRes, err := db.Query("select table_name,COLUMN_NAME,COLUMN_TYPE,COLUMN_COMMENT from information_schema.COLUMNS where table_schema = ? order by table_name limit ? offset ?", database, limit, offset)
+				if err != nil {
+					fmt.Println("字段查询失败：" + err.Error())
+					return
+				}
+				resCount := 0
+				tmpList := make([]map[string]string, 0, limit)
+				for columnRes.Next() {
+					resCount++
+					var table, column, columnType, columnComment string
+					if err = columnRes.Scan(&table, &column, &columnType, &columnComment); err != nil {
+						fmt.Println("获取数据失败", err.Error())
+						continue
+					}
+					fields := map[string]string{
+						"dbName":        database,
+						"table":         handleStr(table),
+						"column":        handleStr(column),
+						"columnType":    handleStr(columnType),
+						"columnComment": handleStr(columnComment), //byte
+					}
+					tmpList = append(tmpList, fields)
+				}
+				resChan <- &tmpList
+				_ = columnRes.Close()
+				if resCount < limit {
+					end = true
+				}
+			}(offset)
+			offset += limit
+		}
+		wg.Wait()
+		if end {
 			break
 		}
-		fmt.Print(".")
-		offset += 50
 	}
-	fmt.Println("")
+	close(resChan)
+	wgWrite.Wait()
+	fmt.Println("结束统计字段信息")
+}
+
+func writeDataToFile(wgOutside *sync.WaitGroup, fileName string, getFromMap func(*map[string]string) string) chan *[]map[string]string {
+	out := make(chan *[]map[string]string)
+	go func() {
+		defer wgOutside.Done() // 否则未写完就退出了
+		if dbFile, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend); err == nil {
+			rowCount := 0
+			for item := range out {
+				rowCount += len(*item)
+				fmt.Println("准备写入数据：", len(*item))
+				for _, info := range *item {
+					dbLine := getFromMap(&info)
+					if _, err := dbFile.WriteString(dbLine); err != nil {
+						fmt.Println(fileName + " 写入失败" + err.Error())
+					}
+				}
+			}
+			fmt.Println(fileName+"文件保存完毕，行数：", rowCount)
+			dbFile.Close()
+		} else {
+			panic(fileName + " 打开失败：" + err.Error())
+		}
+	}()
+	return out
+}
+
+func statSize(db *sql.DB, database string) {
+	var dbTables, dbColNums int
+	var dbLength float64 = 0 //mb
+	offset, limit, goSize := 0, 1000, 20
+	var end bool
+	var wgWrite sync.WaitGroup
+	wgWrite.Add(1)
+	writeChan := writeDataToFile(&wgWrite, "tables.csv", func(item *map[string]string) string {
+		infoMap := *item
+		tableLen, _ := strconv.ParseFloat(infoMap["length"], 64)
+		// 统计数据库数据
+		dbTables += 1
+		columnCount, _ := strconv.Atoi(infoMap["columnCount"])
+		dbColNums += columnCount
+		dbLength += tableLen / 1024 / 1024
+		return fmt.Sprintf("%s,%s,%s,%s,%.8f\r\n", database, infoMap["table"], infoMap["comment"], infoMap["columnCount"], tableLen/1024/1024/1024)
+	})
+	fmt.Println("开始统计表体量字段数等数据...")
+	tableFieldCount := getTableFieldCount(db, database)
+	for {
+		var wg sync.WaitGroup
+		for i := 0; i < goSize; i++ {
+			wg.Add(1)
+			go func(offset int) {
+				defer wg.Done()
+				tableStat := make([]map[string]string, 0, limit)
+				rows, err := db.Query("SELECT `TABLE_SCHEMA`,`TABLE_NAME`,IFNULL(`DATA_LENGTH`,0),IFNULL(`INDEX_LENGTH`,0),`TABLE_COMMENT` FROM information_schema.`TABLES` WHERE `TABLE_SCHEMA` = ? limit ? offset ?", database, limit, offset)
+				if err != nil {
+					fmt.Println("表查询失败：" + err.Error())
+					return
+				}
+				for rows.Next() {
+					var dbName, table, comment string
+					var dataLen, idxLen uint64
+					if err = rows.Scan(&dbName, &table, &dataLen, &idxLen, &comment); err != nil {
+						fmt.Println("获取数据失败", err.Error())
+						continue
+					}
+					columnCount := tableFieldCount[table]
+					tableInfo := map[string]string{
+						"dbName":      handleStr(dbName),
+						"table":       handleStr(table),
+						"comment":     handleStr(comment),
+						"columnCount": handleStr(strconv.Itoa(columnCount)),
+						"length":      handleStr(strconv.FormatUint(dataLen+idxLen, 10)), //byte
+					}
+					tableStat = append(tableStat, tableInfo)
+				}
+				resCount := len(tableStat)
+				writeChan <- &tableStat
+				if err = rows.Close(); err != nil {
+					fmt.Println("数据库连接关闭失败：" + err.Error())
+				}
+				if resCount < limit {
+					end = true
+				}
+			}(offset)
+			offset += limit
+		}
+		wg.Wait()
+		if end {
+			close(writeChan)
+			break
+		}
+	}
+	wgWrite.Wait()
 	// 存储结果
-	fmt.Println("数据查询完毕，开始写入文件...")
+	fmt.Println("汇总结果写入文件：")
 	if dbFile, err := os.OpenFile("database.csv", os.O_APPEND|os.O_WRONLY, os.ModeAppend); err == nil {
-		dbLine := fmt.Sprintf("%s,%d,%d,%.8f\r\n", database, len(tableStat), dbColNums, dbLength/1024/1024)
+		dbLine := fmt.Sprintf("%s,%d,%d,%.8f\r\n", database, dbTables, dbColNums, dbLength/1024/1024)
 		fmt.Println("数据库汇总结果：数据库名称、表的数量、字段数量、占磁盘容量（TB）\r\n" + dbLine)
 		if _, err := dbFile.Write([]byte(dbLine)); err != nil {
 			fmt.Println("database写入失败" + err.Error())
@@ -101,49 +246,29 @@ func main() {
 	} else {
 		fmt.Println("database.csv打开失败：" + err.Error())
 	}
-	if tbFile, err := os.OpenFile("tables.csv", os.O_APPEND|os.O_WRONLY, os.ModeAppend); err == nil {
-		for _, v := range tableStat {
-			tableLen, _ := strconv.ParseFloat(v["length"], 10)
-			dbLine := fmt.Sprintf("%s,%s,%s,%s,%.8f\r\n", database, v["table"], v["comment"], v["columnCount"], tableLen/1024/1024/1024)
-			if _, err := tbFile.Write([]byte(dbLine)); err != nil {
-				fmt.Println("table写入失败" + err.Error())
-			}
-		}
-		tbFile.Close()
-	} else {
-		fmt.Println("tables.csv打开失败：" + err.Error())
-	}
-	fmt.Println("写入完成")
-	//fmt.Println(tableStat)
+	fmt.Println("表体量字段数写入完成")
 }
 
-func checkFile(rewrite bool) {
-	if rewrite {
-		if err := os.Remove("database.csv"); err != nil {
-			fmt.Println("database.csv删除失败：" + err.Error())
-		}
-		if err := os.Remove("tables.csv"); err != nil {
-			fmt.Println("tables.csv删除失败：" + err.Error())
-		}
-	}
-	_, err := os.Stat("database.csv")
-	if err != nil && os.IsNotExist(err) {
-		if file, err := os.Create("database.csv"); err != nil {
-			panic("文件创建失败" + err.Error())
-		} else {
-			if _, err := file.Write([]byte("数据库名称,表的数量,字段数量,占磁盘容量（TB）\r\n")); err != nil {
-				panic("文件写入失败" + err.Error())
+func getTableFieldCount(db *sql.DB, dbName string) map[string]int {
+	tableFieldsMap := make(map[string]int, 6000)
+	columnRes, err := db.Query("select table_name,count(*) as count from information_schema.COLUMNS where table_schema = ? group by table_name ", dbName)
+	if err == nil {
+		for columnRes.Next() {
+			var (
+				tableName string
+				count     int
+			)
+			if err = columnRes.Scan(&tableName, &count); err != nil {
+				fmt.Println("表 字段数查询失败：" + err.Error())
+			} else {
+				tableFieldsMap[tableName] = count
 			}
 		}
-	}
-	_, err = os.Stat("tables.csv")
-	if err != nil && os.IsNotExist(err) {
-		if file, err := os.Create("tables.csv"); err != nil {
-			panic("文件创建失败" + err.Error())
-		} else {
-			if _, err := file.Write([]byte("数据库名称,表名,表中文名,字段数量,占磁盘容量（GB）\r\n")); err != nil {
-				panic("文件写入失败" + err.Error())
-			}
+		if err = columnRes.Close(); err != nil {
+			fmt.Println("columnRes数据库连接关闭失败：" + err.Error())
 		}
+	} else {
+		fmt.Println("获取字段数量失败" + err.Error())
 	}
+	return tableFieldsMap
 }
