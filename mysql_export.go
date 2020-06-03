@@ -171,7 +171,7 @@ func writeDataToFile(wgOutside *sync.WaitGroup, fileName string, getFromMap func
 func statSize(db *sql.DB, database string) {
 	var dbTables, dbColNums int
 	var dbLength float64 = 0 //mb
-	offset, limit, goSize := 0, 1000, 20
+	offset, limit, goSize := 0, 400, 20
 	var end bool
 	var wgWrite sync.WaitGroup
 	wgWrite.Add(1)

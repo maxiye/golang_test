@@ -2,6 +2,7 @@ package test
 
 import (
 	"bufio"
+	"golang_test/util"
 	"io"
 	"io/ioutil"
 	"os"
@@ -69,6 +70,7 @@ func TestFileRW(t *testing.T) {
 	t.Log(bytes) // 前2字节写入了新内容，后边还是原数据
 	file.Close()
 	_ = os.Remove("../tmp")
+	t.Log(util.IoReadFile("tmp"))
 }
 
 func TestBuffW(t *testing.T) {

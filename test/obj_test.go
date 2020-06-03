@@ -1,6 +1,10 @@
 package test
 
-import "testing"
+import (
+	"fmt"
+	"sync"
+	"testing"
+)
 
 type Girl struct {
 	Name string
@@ -15,11 +19,38 @@ type Man struct {
 	Bf   []*Girl
 }
 
+type Actor struct {
+	Sing       string
+	Jump       int
+	Rap        []string
+	Basketball uintptr
+}
+
+// 和接口一样组合
+type ManActor struct {
+	Man // 可以用man的方法
+	Actor
+}
+
 func (m *Man) Sleep(g Girl) *Man {
 	// 必须赋值，直接改变不生效
-	//m.Wifi = append(m.Wifi, g)
-	m.Wifi[2] = g
+	fmt.Println(m, " slept ", g)
 	return new(Man)
+}
+
+func TestObjAsign(t *testing.T) {
+	var g Girl
+	var g2 Girl
+	var g3 Girl
+	const (
+		A byte = 1 << iota
+		B byte = 1 << iota
+		C byte = 1 << iota
+	)
+	g.Age = A
+	g2.Age = B
+	g3.Age = C
+	t.Log(g, g2, g3)
 }
 
 func TestObj(t *testing.T) {
@@ -63,4 +94,30 @@ func doObj(girl Girl) {
 
 func doObjP(girl *Girl) {
 	girl.Age++
+}
+
+func TestComplexObj(t *testing.T) {
+	manActor := new(ManActor)
+	manActor.Name = "Xukun Cai"
+	manActor.Age = 22
+	manActor.Gf = &[]Girl{}
+	manActor.Sleep(Girl{"aa", 20})
+	t.Log(manActor)
+}
+
+var single *Actor
+var once sync.Once
+
+func getSinleActor() *Actor {
+	once.Do(func() {
+		fmt.Println("once do")
+		single = new(Actor)
+	})
+	return single
+}
+
+func TestSingleOnce(t *testing.T) {
+	actor := getSinleActor()
+	actor2 := getSinleActor()
+	t.Logf("%p %p", actor, actor2)
 }
