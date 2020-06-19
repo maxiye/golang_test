@@ -106,7 +106,7 @@ func TestComplexObj(t *testing.T) {
 }
 
 var single *Actor
-var once sync.Once
+var once sync.Once // 必须放到程序外边
 
 func getSinleActor() *Actor {
 	once.Do(func() {

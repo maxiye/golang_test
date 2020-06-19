@@ -2,16 +2,16 @@ package test
 
 import "testing"
 
-func TestT(t *testing.T)  {
+func TestT(t *testing.T) {
 	t.Log("aa")
 }
 
-func TestAssign(t *testing.T)  {
+func TestAssign(t *testing.T) {
 	var (
 		a int = 1
-		b = 2
+		b     = 2
 	)
-	a, b = b, a// 交换
+	a, b = b, a // 交换
 	t.Log(a, b)
 	const (
 		c = iota + 1

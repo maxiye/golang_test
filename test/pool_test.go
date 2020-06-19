@@ -45,7 +45,7 @@ func TestManPool(t *testing.T) {
 		man, err := manPool.getMan()
 		if err == nil {
 			man.Sleep(Girl{"aa", 20})
-			manPool.releaseMan(man)
+			_ = manPool.releaseMan(man)
 		} else {
 			t.Log("no man")
 		}
