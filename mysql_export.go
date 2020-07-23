@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-	// -h 172.17.12.152 -u root -p im2NCnCwweA= -d xqdata_2345
 	var host, port, user, pass, database, charset string
 	var rewrite bool
 	flag.StringVar(&host, "h", "", "host，ip地址")
