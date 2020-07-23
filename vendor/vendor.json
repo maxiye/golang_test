@@ -1,11 +1,6 @@
 {
 	"comment": "",
 	"ignore": "test",
-	"package": [
-		{
-			"path": "github.com/elastic/go-elasticsearch/v6",
-			"revision": ""
-		}
-	],
+	"package": [],
 	"rootPath": "golang_test"
 }
