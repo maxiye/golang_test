@@ -8,8 +8,8 @@ import (
 
 func TestRedis(t *testing.T) {
 	rdb := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:    []string{"172.17.12.152:6381", "172.17.12.152:6382", "172.17.12.152:6383", "172.17.12.152:6384", "172.17.12.152:6385", "172.17.12.152:6386"},
-		Password: "im2NCnCwweA=",
+		Addrs:    []string{"172.17.210.84:7001", "172.17.210.85:7002", "172.17.210.85:7001", "172.17.210.86:7002", "172.17.210.86:7001", "172.17.210.84:7002"},
+		Password: "8Mbh8Ykz",
 	})
 	rKey := "xq:boat:race:20200619:401123670"
 	boatRace, err := rdb.HGetAll(rKey).Result()
