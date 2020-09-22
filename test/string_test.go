@@ -1,6 +1,9 @@
 package test
 
 import (
+	jsoniter "github.com/json-iterator/go"
+	"github.com/tidwall/gjson"
+	"os"
 	"strconv"
 	"testing"
 )
@@ -24,4 +27,40 @@ func TestString(t *testing.T) {
 
 func TestInt(t *testing.T) {
 	t.Log(float32(12121) / 1024)
+}
+
+func TestJson(t *testing.T) {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	t.Log(json.NewEncoder(os.Stdout).Encode(map[string]interface{}{"aa": "bb", "bb": 1, "cc": [2]int{1, 2}}))
+	jsonStr, err := json.MarshalToString(&map[string]interface{}{"aa": "bb", "bb": 1, "cc": [2]int{1, 2}})
+	if err == nil {
+		t.Log(jsonStr)
+	}
+	var jsonObj map[string]interface{}
+	if err := json.UnmarshalFromString(jsonStr, &jsonObj); err == nil {
+		t.Log(jsonObj)
+	}
+}
+
+func TestGJson(t *testing.T) {
+	jsonStr := `
+{
+  "name": {"first": "Tom", "last": "Anderson"},
+  "age":37,
+  "children": ["Sara","Alex","Jack"],
+  "fav.movie": "Deer Hunter",
+  "friends": [
+    {"first": "Dale", "last": "Murphy", "age": 44, "nets": ["ig", "fb", "tw"]},
+    {"first": "Roger", "last": "Craig", "age": 68, "nets": ["fb", "tw"]},
+    {"first": "Jane", "last": "Murphy", "age": 47, "nets": ["ig", "tw"]}
+  ]
+}
+`
+	json := gjson.Parse(jsonStr)
+	t.Log(json)
+	val := gjson.Get(jsonStr, "name.first")
+	children := gjson.Get(jsonStr, "children")
+	gf := gjson.Get(jsonStr, "gf")
+	t.Log(val, children)
+	t.Log(gf)
 }

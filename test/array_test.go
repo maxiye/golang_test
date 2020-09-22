@@ -1,8 +1,6 @@
 package test
 
 import (
-	jsoniter "github.com/json-iterator/go"
-	"os"
 	"testing"
 )
 
@@ -80,9 +78,4 @@ func TestSliceRefrence(t *testing.T) {
 	// cap未发生改变时，append都是在原数组上操作的，会影响到所有使用统一原始数组的slice
 	t.Log(cap(a), cap(b), cap(c), cap(d))
 	t.Log(a, b, c, d)
-}
-
-func TestJson(t *testing.T) {
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	t.Log(json.NewEncoder(os.Stdout).Encode(map[string]interface{}{"aa": "bb", "bb": 1, "cc": [2]int{1, 2}}))
 }
