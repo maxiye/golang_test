@@ -1,0 +1,30 @@
+/**
+syntax="proto3":指定protobuf的版本
+package helloworld:声明一个报名，一般与文件目录名相同
+import "xxx/xx.proto":导入其他的包，这样你就可以使用其他的包的数据结构
+required、optional、repeated:表示该字段是否必须填充；required表示必须指定且只能指定一个；当optional表示可选，可指定也可不指定，但不可超过一个不指定值的时候会采用空值，如string类型的字段会用字符串表示；repeated表示可以重复，类似与编程语言中的list
+message Author：在一个message体内定义一个message结构体
+enum：是枚举类型结构体
+数字：字段的标识符，不可重复
+数据类型： int32、int64、uint32、uint64、sint32、sint64、double、float、 string、bool、bytes、enum、message等等
+**/
+syntax = "proto3";
+
+option objc_class_prefix = "HLW";
+option go_package = "../proto_go;helloworld";
+
+// The greeting service definition.
+service Nihao {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
