@@ -8,8 +8,8 @@ func TestT(t *testing.T) {
 
 func TestAssign(t *testing.T) {
 	var (
-		a int = 1
-		b     = 2
+		a = 1
+		b = 2
 	)
 	a, b = b, a // 交换
 	t.Log(a, b)

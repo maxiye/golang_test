@@ -51,7 +51,7 @@ func TestAssert(t *testing.T) {
 	b := "aa"
 	c := 'a'
 	var d types.Nil
-	e := []int{}
+	var e []int
 	f := func() int {
 		return 1
 	}

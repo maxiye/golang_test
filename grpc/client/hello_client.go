@@ -18,7 +18,9 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	c := helloworld.NewNihaoClient(conn)
 	name := "zhangyl"

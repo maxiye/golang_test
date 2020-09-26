@@ -54,7 +54,7 @@ func WriteFieldToFile(wg *sync.WaitGroup) chan []string {
 					}
 				}
 			}
-			dbFile.Close()
+			_ = dbFile.Close()
 		} else {
 			panic("fields.csv打开失败：" + err.Error())
 		}

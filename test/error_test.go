@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var AError error = errors.New("A error")
+var AError = errors.New("A error")
 
 func getAError() error {
 	return AError

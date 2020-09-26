@@ -12,7 +12,7 @@ func main() {
 	uidSet := make(map[string]bool, 150000)
 	if uidVer, err := os.OpenFile(uidVerFile, os.O_RDONLY, os.ModePerm); err == nil {
 		br := bufio.NewReader(uidVer)
-		br.ReadBytes('\n')
+		_, _ = br.ReadBytes('\n')
 		for {
 			l, e := br.ReadBytes('\n')
 			if e != nil && len(l) == 0 {
@@ -30,7 +30,7 @@ func main() {
 	rfmFilePath := "I:\\test\\logs\\分层模型用户数据报表_810.csv"
 	if rfm, err := os.OpenFile(rfmFilePath, os.O_RDONLY, os.ModePerm); err == nil {
 		br := bufio.NewReader(rfm)
-		br.ReadBytes('\n')
+		_, _ = br.ReadBytes('\n')
 		tMapCount := make(map[string]int)
 		for {
 

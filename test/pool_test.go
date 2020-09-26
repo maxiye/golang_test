@@ -26,7 +26,7 @@ func (pool *ManPool) getMan() (*Man, error) {
 	case ret := <-pool.buffer:
 		return ret, nil
 	case <-time.After(1 * time.Second):
-		return nil, errors.New("No more")
+		return nil, errors.New("no more")
 	}
 }
 

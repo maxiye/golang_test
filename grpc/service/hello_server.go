@@ -15,7 +15,7 @@ const (
 type server struct {
 }
 
-func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
+func (s *server) SayHello(_ context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	return &helloworld.HelloReply{Message: "Hello " + in.Name}, nil
 }
 

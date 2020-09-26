@@ -19,7 +19,7 @@ func TestFile(t *testing.T) {
 		fInfo, _ := file.Stat()
 		t.Log(fInfo.Size(), fInfo.Mode(), fInfo.Name(), fInfo.IsDir())
 	}
-	file.Close() // rename tmp ../200B: The process cannot access the file because it is being used by another process.
+	_ = file.Close() // rename tmp ../200B: The process cannot access the file because it is being used by another process.
 	if err = os.Rename("tmp", "../10B"); err != nil {
 		t.Log(err)
 	}
@@ -29,7 +29,7 @@ func TestFile(t *testing.T) {
 		_ = file.Sync()
 		bytes, err := ioutil.ReadFile("../10B")
 		t.Log(bytes, err)
-		file.Close()
+		_ = file.Close()
 	} else {
 		t.Log(err)
 	}
@@ -43,13 +43,13 @@ func TestFileCheck(t *testing.T) {
 	t.Log(file, err, os.IsNotExist(err))
 	t.Log(os.IsPermission(err))
 	file, _ = os.OpenFile("tmp", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
-	file.Chmod(0666)
+	_ = file.Chmod(0666)
 	tfile, _ := os.OpenFile("tmp2", os.O_CREATE|os.O_RDWR, 0755)
-	io.Copy(tfile, file)
-	file.Close()
-	tfile.Close()
-	os.Remove("tmp")
-	os.Remove("tmp2")
+	_, _ = io.Copy(tfile, file)
+	_ = file.Close()
+	_ = tfile.Close()
+	_ = os.Remove("tmp")
+	_ = os.Remove("tmp2")
 }
 
 func TestFileRW(t *testing.T) {
@@ -68,7 +68,7 @@ func TestFileRW(t *testing.T) {
 	_, _ = file.Seek(-2, syscall.FILE_END)
 	_, _ = file.Read(bytes)
 	t.Log(bytes) // 前2字节写入了新内容，后边还是原数据
-	file.Close()
+	_ = file.Close()
 	_ = os.Remove("../tmp")
 	t.Log(util.IoReadFile("tmp"))
 }

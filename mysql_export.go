@@ -159,7 +159,7 @@ func writeDataToFile(wgOutside *sync.WaitGroup, fileName string, getFromMap func
 				}
 			}
 			fmt.Println(fileName+"文件保存完毕，行数：", rowCount)
-			dbFile.Close()
+			_ = dbFile.Close()
 		} else {
 			panic(fileName + " 打开失败：" + err.Error())
 		}
@@ -241,7 +241,7 @@ func statSize(db *sql.DB, database string) {
 		if _, err := dbFile.Write([]byte(dbLine)); err != nil {
 			fmt.Println("database写入失败" + err.Error())
 		}
-		dbFile.Close()
+		_ = dbFile.Close()
 	} else {
 		fmt.Println("database.csv打开失败：" + err.Error())
 	}
