@@ -1,9 +1,13 @@
 package test
 
 import (
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
+	"io/ioutil"
+	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"testing"
 )
@@ -63,4 +67,26 @@ func TestGJson(t *testing.T) {
 	gf := gjson.Get(jsonStr, "gf")
 	t.Log(val, children)
 	t.Log(gf)
+}
+
+type ModList struct {
+	ModulePath    string  `json:"module_path,omitempty"`
+	DownloadCount float64 `json:"download_count,omitempty"`
+}
+
+func TestGoQuery2(t *testing.T) {
+	if res, err := http.Get("https://goproxy.cn/stats/trends/latest"); err == nil && res != nil {
+		bytes, _ := ioutil.ReadAll(res.Body)
+		defer func() {
+			_ = res.Body.Close()
+		}()
+		var jsonObj []*ModList
+		err = jsoniter.Unmarshal(bytes, &jsonObj)
+		t.Log(len(jsonObj), jsonObj[len(jsonObj)-1])
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		fmt.Printf("%d Kb\n", m.Alloc/1024)
+	} else {
+		t.Log(err)
+	}
 }
