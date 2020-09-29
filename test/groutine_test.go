@@ -20,6 +20,34 @@ func TestGo(t *testing.T) {
 	time.Sleep(time.Millisecond * 500)
 }
 
+func TestRwLock(t *testing.T) {
+	var rwLock sync.RWMutex
+	var wg sync.WaitGroup
+	wg.Add(3)
+	go func() {
+		rwLock.RLock()
+		t.Log("RLock", time.Now().Unix())
+		time.Sleep(time.Second * 2)
+		rwLock.RUnlock()
+		wg.Done()
+	}()
+	go func() {
+		rwLock.RLock()
+		t.Log("RLock", time.Now().Unix())
+		time.Sleep(time.Second * 2)
+		rwLock.RUnlock()
+		wg.Done()
+	}()
+	go func() {
+		rwLock.Lock()
+		t.Log("Lock", time.Now().Unix())
+		time.Sleep(time.Second * 2)
+		rwLock.Unlock()
+		wg.Done()
+	}()
+	wg.Wait()
+}
+
 func TestGoOpt(t *testing.T) {
 	counter := 0
 	var mu sync.Mutex
@@ -85,4 +113,18 @@ func TestCtx(t *testing.T) {
 	time.Sleep(5 * time.Second)
 	cancel()
 	wg.Wait()
+}
+
+func TestAsyncTask(t *testing.T) {
+	asyncTask := func() chan string {
+		resChan := make(chan string)
+		t.Log(len(resChan))
+		go func() {
+			time.Sleep(time.Second * 2)
+			resChan <- "result"
+		}()
+		return resChan
+	}
+	resChan := asyncTask()
+	t.Log(<-resChan)
 }

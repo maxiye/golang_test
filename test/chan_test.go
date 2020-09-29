@@ -10,15 +10,16 @@ import (
 )
 
 func TestChan(t *testing.T) {
-	resChan := make(chan int)
+	resChan := make(chan int64) //阻塞式chan，上一个未pop，无法push下一个
 	go func() {
 		for x := range resChan {
 			fmt.Println(x)
+			time.Sleep(time.Second)
 		}
 	}()
-	resChan <- 1
-	resChan <- 2
-	resChan <- 3
+	resChan <- time.Now().Unix()
+	resChan <- time.Now().Unix()
+	resChan <- time.Now().Unix()
 	//close(resChan)
 	//return;
 }
@@ -124,4 +125,14 @@ func TestBufferedChan(t *testing.T) {
 	fmt.Println("wait")
 	close(chan1)
 	wg.Wait()
+}
+
+func TestSelectHold(t *testing.T) {
+	go func() {
+		ticker := time.NewTicker(time.Second * 1)
+		for x := range ticker.C {
+			t.Log(x.Unix())
+		}
+	}()
+	select {} //block 进程，没有协程在后台运行就panic：fatal error: all goroutines are asleep - deadlock!
 }
