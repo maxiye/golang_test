@@ -10,8 +10,7 @@ enum：是枚举类型结构体
 **/
 syntax = "proto3";
 
-option objc_class_prefix = "HLW";
-option go_package = "../proto_go;helloworld";
+option go_package = "../proto_go;grpc_service";
 
 // The greeting service definition.
 service Nihao {

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "../proto_go;grpc_service";
+
+// The api service definition.
+service Api {
+  // Sends a api
+  rpc GetModTrends (TrendRequest) returns (TrendReply) {}
+}
+
+// The request message containing the stat period.
+message TrendRequest {
+  string period = 1;
+}
+
+// The response message containing the module's trends
+message TrendReply {
+  string period = 1;
+  message ModItem {
+    string module_path = 1;
+    double download_count = 2;
+  }
+  repeated ModItem modItem = 2;
+}

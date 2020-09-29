@@ -14,9 +14,7 @@ _新建helloworld.proto_
 ```
 syntax = "proto3";
 
-option objc_class_prefix = "HLW";
-
-package helloworld;
+option go_package = "../proto_go;helloworld";
 
 // The greeting service definition.
 service Nihao {
