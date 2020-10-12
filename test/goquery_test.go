@@ -15,10 +15,3 @@ func TestGoQuery(t *testing.T) {
 		}
 	}
 }
-
-func BenchmarkGoqueryB(b *testing.B) {
-	b.ResetTimer()
-	res, _ := http.Get("xq.2345.com")
-	b.Log(res)
-	b.StopTimer()
-}

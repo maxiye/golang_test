@@ -61,7 +61,7 @@ func TestGJson(t *testing.T) {
 }
 `
 	json := gjson.Parse(jsonStr)
-	t.Log(json)
+	t.Log(json.Get("friends"))
 	val := gjson.Get(jsonStr, "name.first")
 	children := gjson.Get(jsonStr, "children")
 	gf := gjson.Get(jsonStr, "gf")

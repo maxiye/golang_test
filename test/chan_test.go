@@ -136,3 +136,22 @@ func TestSelectHold(t *testing.T) {
 	}()
 	select {} //block 进程，没有协程在后台运行就panic：fatal error: all goroutines are asleep - deadlock!
 }
+
+func TestSelectDefault(t *testing.T) {
+	//chan1 := make(chan int)//fatal error: all goroutines are asleep - deadlock!
+	chan1 := make(chan int, 2)
+	chan1 <- 1
+	chan2 := make(chan string, 1)
+	chan2 <- "a"
+	for {
+		select { // 随机一个chan获取，无上下顺序
+		case res := <-chan1:
+			t.Log("chan1", res)
+		case res := <-chan2:
+			t.Log("chan2", res)
+		default: //不等待
+			t.Log("default")
+
+		}
+	}
+}

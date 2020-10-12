@@ -116,8 +116,15 @@ func getSinleActor() *Actor {
 	return single
 }
 
+func getSingleActor2() {
+	once.Do(func() {
+		fmt.Println("once do2")
+	})
+}
+
 func TestSingleOnce(t *testing.T) {
 	actor := getSinleActor()
 	actor2 := getSinleActor()
+	getSingleActor2() // 不执行，once只能用一次
 	t.Logf("%p %p", actor, actor2)
 }

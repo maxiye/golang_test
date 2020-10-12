@@ -39,3 +39,17 @@ func TestPanic(t *testing.T) {
 	//os.Exit(1)// 不执行defer
 	panic("啊啊啊啊啊")
 }
+
+func TestFail(t *testing.T) {
+	t.Log("testing")
+	t.Fail()
+	t.Error("error")
+	t.Log("tested")
+}
+
+func TestFatal(t *testing.T) {
+	t.Log("testing")
+	t.Fatal("fatal")
+	//t.FailNow()
+	//t.Log("tested")
+}

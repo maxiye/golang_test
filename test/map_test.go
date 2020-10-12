@@ -20,7 +20,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestMapFor(t *testing.T) {
-	m := map[string]interface{}{"a": 2, "b": "aa"}
+	m := map[string]interface{}{"a": 2, "b": "aa", "c": []int{1, 2, 3}}
 	for k, v := range m {
 		t.Log(k, v)
 	}

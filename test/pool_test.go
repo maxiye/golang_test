@@ -3,6 +3,7 @@ package test
 import (
 	"errors"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 )
@@ -50,4 +51,36 @@ func TestManPool(t *testing.T) {
 			t.Log("no man")
 		}
 	}
+}
+
+func TestSyncPool(t *testing.T) {
+	pool := &sync.Pool{
+		New: func() interface{} {
+			return 0
+		},
+	}
+	t.Log(pool.Get().(int))
+	pool.Put(20)
+	t.Log(pool.Get().(int))
+	t.Log(pool.Get().(int)) //0，取出则消失
+	t.Log(pool)
+}
+
+func TestSyncPool2(t *testing.T) {
+	pool := &sync.Pool{
+		New: func() interface{} {
+			return 10
+		},
+	}
+	pool.Put(11) //私有对象，必定首次获取到
+	pool.Put(12)
+	pool.Put(13)
+	pool.Put(14)
+	pool.Put(15)
+	for i := 0; i < 10; i++ {
+		go func() {
+			t.Log(pool.Get().(int))
+		}()
+	}
+	select {}
 }

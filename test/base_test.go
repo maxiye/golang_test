@@ -1,6 +1,9 @@
 package test
 
-import "testing"
+import (
+	jsoniter "github.com/json-iterator/go"
+	"testing"
+)
 
 func TestT(t *testing.T) {
 	t.Log("aa")
@@ -49,4 +52,11 @@ func TestAssign(t *testing.T) {
 		x
 	)
 	t.Log(u, v, w, x)
+}
+
+func BenchmarkGoquery(b *testing.B) {
+	b.ResetTimer()
+	var res map[string]interface{}
+	_ = jsoniter.UnmarshalFromString("{\"a\":777}", &res)
+	b.StopTimer()
 }
