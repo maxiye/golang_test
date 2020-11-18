@@ -60,3 +60,33 @@ func BenchmarkGoquery(b *testing.B) {
 	_ = jsoniter.UnmarshalFromString("{\"a\":777}", &res)
 	b.StopTimer()
 }
+
+func TestSwtichIf(t *testing.T) {
+	i := 5
+	i++
+	switch {
+	case i < 5:
+		t.Log("i < 5")
+	case i >= 5:
+		t.Log("i >= 5")
+	}
+}
+
+func TestNilPointer(t *testing.T) {
+	a := func(i *int) {
+		*i = 0
+	}
+	i1 := 4
+	a(&i1)
+	t.Log(i1)
+	var i2 int
+	a(&i2)
+	//a(nil)// panic: runtime error: invalid memory address or nil pointer dereference
+	t.Log(i2)
+	var slice1 []int // 0 0
+	t.Log(len(slice1), cap(slice1))
+	lenObj := func(i []int) int {
+		return len(i) // 不报错 。。。。。
+	}
+	t.Log(lenObj(nil))
+}

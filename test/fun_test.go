@@ -73,3 +73,19 @@ func funcWithSlice(slice []int) {
 func funcWithSliceP(slc *[]int) {
 	*slc = []int{22222}
 }
+
+// 生成器，闭包
+func intGenerator() func() int {
+	i := 0
+	return func() int {
+		i++
+		return i
+	}
+}
+
+func TestGen(t *testing.T) {
+	intGetter := intGenerator()
+	t.Log(intGetter())
+	t.Log(intGetter())
+	t.Log(intGetter())
+}

@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"testing"
 )
@@ -127,4 +128,27 @@ func TestSingleOnce(t *testing.T) {
 	actor2 := getSinleActor()
 	getSingleActor2() // 不执行，once只能用一次
 	t.Logf("%p %p", actor, actor2)
+}
+
+func getObj() *Actor {
+	act := Actor{
+		Sing:       "chicken beauty",
+		Jump:       1,
+		Rap:        nil,
+		Basketball: 1,
+	}
+	rap := make([]string, 200, 1000)
+	act.Rap = rap
+	fmt.Printf("%p\r\n", &act)
+	return &act
+}
+
+func TestObjReturn(t *testing.T) {
+	a1 := getObj()
+	t.Logf("%p\r\n", a1)
+	a2 := getObj()
+	t.Logf("%p\r\n", a2)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	t.Log(m.Alloc, m.HeapInuse, runtime.NumGoroutine())
 }

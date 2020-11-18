@@ -6,6 +6,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"reflect"
+	"strings"
 	"syscall"
 	"testing"
 )
@@ -82,4 +84,26 @@ func TestBuffW(t *testing.T) {
 	_ = buffer.Flush()
 	bufio.NewWriterSize(buffer, 1024) // 只增不减
 	t.Log(buffer.Available())
+}
+
+func TestUniqueFile(t *testing.T) {
+	file, _ := os.Open("I:\\test\\test\\users.txt")
+	buffer := bufio.NewReader(file)
+	userSet := make(map[string]bool, 100)
+	for {
+		line, _, err := buffer.ReadLine() // 行太长时，会只返回前一部分，第二个返回值设置为true
+		if err != nil {
+			break
+		}
+		linestr := string(line)
+		if linestr != "" {
+			users := strings.Split(linestr, ",")
+			for _, v := range users {
+				if v != "" {
+					userSet[v] = true
+				}
+			}
+		}
+	}
+	t.Log(reflect.ValueOf(userSet).MapKeys())
 }

@@ -9,6 +9,8 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/json-iterator/go v1.1.10
 	github.com/olivere/elastic/v7 v7.0.20
+	github.com/stretchr/testify v1.6.1
+	github.com/tebeka/selenium v0.9.9
 	github.com/tidwall/gjson v1.6.1
 	golang.org/x/net v0.0.0-20200923182212-328152dc79b1 // indirect
 	golang.org/x/sys v0.0.0-20200923182605-d9f96fdee20d // indirect

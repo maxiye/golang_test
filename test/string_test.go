@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
@@ -88,5 +89,19 @@ func TestGoQuery2(t *testing.T) {
 		fmt.Printf("%d Kb\n", m.Alloc/1024)
 	} else {
 		t.Log(err)
+	}
+}
+
+func TestAtoI(t *testing.T) {
+	var a interface{}
+	a = ""
+	pkgId, _ := strconv.Atoi(a.(string))
+	assert.Equal(t, 0, pkgId)
+}
+
+func TestRangeString(t *testing.T) {
+	for i, c := range "23cd我搜索" {
+		// i为字符的起始字节位置，【我】时，i=4，【搜】时，i=7
+		t.Log(i, c)
 	}
 }
