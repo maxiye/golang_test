@@ -240,3 +240,14 @@ func TestNilChan(t *testing.T) {
 	var strchan chan string
 	strchan <- "aa"
 }
+
+var testChan chan string
+
+func GetTestChan() chan string {
+	return testChan
+}
+
+func TestGetChan(t *testing.T) {
+	chan1 := GetTestChan()
+	t.Log(chan1)
+}

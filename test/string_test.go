@@ -10,7 +10,9 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestString(t *testing.T) {
@@ -104,4 +106,18 @@ func TestRangeString(t *testing.T) {
 		// i为字符的起始字节位置，【我】时，i=4，【搜】时，i=7
 		t.Log(i, c)
 	}
+}
+
+func TestSplit(t *testing.T) {
+	s := ""
+	sArr := strings.Split(s, ",")
+	t.Log(len(sArr), sArr) // len = 1
+	s2 := "aaa"
+	t.Log(strings.Split(s2, ","))
+}
+
+func TestTimeFormat(t *testing.T) {
+	form := "20060102150405-.000.000000"
+	t.Log(time.Now().Format(form))
+	t.Log(time.Now().Format("2006-01-02-15:04:05:1233"))
 }

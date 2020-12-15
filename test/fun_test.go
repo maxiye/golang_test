@@ -89,3 +89,11 @@ func TestGen(t *testing.T) {
 	t.Log(intGetter())
 	t.Log(intGetter())
 }
+
+func TestMultiParamsFunc(t *testing.T) {
+	testFun := func(app string, role ...string) {
+		t.Log(role)
+	}
+	testFun("a")
+	testFun("a", "b", "c")
+}
