@@ -105,3 +105,11 @@ func TestRangeString(t *testing.T) {
 		t.Log(i, c)
 	}
 }
+
+func TestJsonSlice(t *testing.T) {
+	var a []int
+	var b = []int{}
+	s1, _ := jsoniter.MarshalToString(a)
+	s2, _ := jsoniter.MarshalToString(b)
+	t.Log(s1, s2)
+}

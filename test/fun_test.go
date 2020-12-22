@@ -89,3 +89,45 @@ func TestGen(t *testing.T) {
 	t.Log(intGetter())
 	t.Log(intGetter())
 }
+
+// 先进后出
+func TestDefer(t *testing.T) {
+	defer func() {
+		t.Log(1111)
+	}()
+	defer func() {
+		t.Log(2222)
+	}()
+}
+
+func TestDefer2(t *testing.T) {
+	deferfun := func() {
+		defer func() {
+			println("aaa")
+		}()
+		defer func() {
+			println("bbb")
+		}()
+	}
+	defer println("111")
+	deferfun()
+	defer println("222")
+	println("ccc")
+	defer panic("fff")
+	panic("eee")
+}
+
+func TestDefer3(t *testing.T) {
+	calc := func(index string, a, b int) int {
+		ret := a + b
+		fmt.Println(index, a, b, ret)
+		return ret
+	}
+	a := 1
+	b := 2
+	defer calc("1", a, calc("10", a, b))
+	a = 0
+	defer func() { println(a, b) }()     // 引用外部变量，
+	defer calc("2", a, calc("20", a, b)) // defer时，参数已确定
+	b = 1
+}
