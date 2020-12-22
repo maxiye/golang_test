@@ -90,6 +90,14 @@ func TestGen(t *testing.T) {
 	t.Log(intGetter())
 }
 
+func TestMultiParamsFunc(t *testing.T) {
+	testFun := func(app string, role ...string) {
+		t.Log(role)
+	}
+	testFun("a")
+	testFun("a", "b", "c")
+}
+
 // 先进后出
 func TestDefer(t *testing.T) {
 	defer func() {

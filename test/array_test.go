@@ -1,6 +1,7 @@
 package test
 
 import (
+	"sort"
 	"testing"
 )
 
@@ -78,4 +79,46 @@ func TestSliceRefrence(t *testing.T) {
 	// cap未发生改变时，append都是在原数组上操作的，会影响到所有使用统一原始数组的slice
 	t.Log(cap(a), cap(b), cap(c), cap(d))
 	t.Log(a, b, c, d)
+}
+
+func TestSliceSort(t *testing.T) {
+	slice1 := []string{"aa", "我", "撒旦撒旦", "1"}
+	sort.Strings(slice1)
+	t.Log(slice1)
+	t.Log(sort.StringsAreSorted(slice1))
+	sort.Sort(sort.Reverse(sort.StringSlice(slice1)))
+	t.Log(slice1, sort.StringsAreSorted(slice1)) // false
+}
+
+func TestManualSort(t *testing.T) {
+	slice1 := []string{"aabb", "aabbcc", "我是", "撒旦撒旦", "2", "1"}
+	less := func(i, j int) bool {
+		return len(slice1[i]) > len(slice1[j])
+	}
+	sort.Slice(slice1, less)
+	t.Log(slice1)
+	sort.SliceStable(slice1, less)
+	t.Log(slice1)
+}
+
+type lenSort []string
+
+func (s lenSort) Len() int {
+	return len(s)
+}
+
+func (s lenSort) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s lenSort) Less(i, j int) bool {
+
+}
+
+func TestManualSort2(t *testing.T) {
+	type lenSort []string
+
+	less := func() {
+
+	}
 }
