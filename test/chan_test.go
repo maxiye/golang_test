@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -250,4 +251,19 @@ func GetTestChan() chan string {
 func TestGetChan(t *testing.T) {
 	chan1 := GetTestChan()
 	t.Log(chan1)
+}
+
+func TestSelect(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		time.Sleep(3 * time.Second)
+
+		cancel()
+	}()
+	select {
+	case res, ok := <-ctx.Done():
+		t.Log("done", res, ok)
+	case <-time.NewTimer(time.Second * 5).C:
+		t.Log("timeout")
+	}
 }

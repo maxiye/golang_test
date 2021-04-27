@@ -110,6 +110,23 @@ func TestTimer(t *testing.T) {
 	wg.Wait()
 }
 
+func TestTimerC(t *testing.T) {
+	timer := time.NewTimer(2 * time.Second)
+	select {
+	case <-timer.C:
+		t.Log("timeout")
+	}
+	select {
+	case <-timer.C:
+		t.Log("timeout")
+	}
+	select {
+	case <-timer.C:
+		t.Log("timeout")
+	}
+	t.Log("end")
+}
+
 func TestCtx(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background()) // 不可变对象
 	var wg sync.WaitGroup
@@ -217,4 +234,10 @@ func TestLock(t *testing.T) {
 	go func() {
 		lock.Lock()
 	}()
+}
+
+func TestContext(t *testing.T) {
+	ctx := context.Background()
+	s, ok := ctx.Value("aa").(string)
+	t.Log(s, ok)
 }

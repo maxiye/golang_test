@@ -27,6 +27,12 @@ type Actor struct {
 	Basketball uintptr
 }
 
+type AA []string
+
+func (a AA) aa() {
+	fmt.Println(a[0])
+}
+
 // 和接口一样组合
 type ManActor struct {
 	Man // 可以用man的方法
@@ -151,4 +157,23 @@ func TestObjReturn(t *testing.T) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	t.Log(m.Alloc, m.HeapInuse, runtime.NumGoroutine())
+}
+
+func TestPointer(t *testing.T) {
+	funaa := func(a *int) {
+		*a = 2
+	}
+	funbb := func(a *int) {
+		b := 2
+		a = &b
+	}
+	var b = 1
+	funaa(&b)
+	t.Log(b)
+	//var c *int
+	//funaa(c)
+	//t.Log(c)
+	var c = 1
+	funbb(&c)
+	t.Log(c)
 }

@@ -1,12 +1,15 @@
 package test
 
 import (
-	jsoniter "github.com/json-iterator/go"
+	"fmt"
+	"os"
 	"testing"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 func TestT(t *testing.T) {
-	t.Log("aa")
+	t.Log(234821 % 10)
 }
 
 func TestAssign(t *testing.T) {
@@ -89,4 +92,14 @@ func TestNilPointer(t *testing.T) {
 		return len(i) // 不报错 。。。。。
 	}
 	t.Log(lenObj(nil))
+}
+
+func TestMult(t *testing.T) {
+	fmt.Println(9 * 0.9)
+	num := 99
+	fmt.Println(float64(num) * 0.95)
+}
+
+func TestMkdir(t *testing.T) {
+	t.Log(os.Mkdir("/tmp/aaa", os.ModePerm))
 }

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func main() {
+func main3() {
 	uidVerFile := "I:\\test\\logs\\版本活跃用户810.csv"
 	uidSet := make(map[string]bool, 150000)
 	if uidVer, err := os.OpenFile(uidVerFile, os.O_RDONLY, os.ModePerm); err == nil {

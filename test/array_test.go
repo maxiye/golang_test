@@ -1,8 +1,12 @@
 package test
 
 import (
+	"fmt"
+	"math/rand"
+	"reflect"
 	"sort"
 	"testing"
+	"time"
 )
 
 func TestArray(t *testing.T) {
@@ -101,24 +105,75 @@ func TestManualSort(t *testing.T) {
 	t.Log(slice1)
 }
 
-type lenSort []string
-
-func (s lenSort) Len() int {
-	return len(s)
-}
-
-func (s lenSort) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
-func (s lenSort) Less(i, j int) bool {
-
-}
-
-func TestManualSort2(t *testing.T) {
-	type lenSort []string
-
-	less := func() {
-
+func ChunkDo(i interface{}, chunkNum int, do func(interface{}) error) error {
+	if chunkNum <= 0 {
+		panic("err chunkNum")
 	}
+	if reflect.TypeOf(i).Kind() == reflect.Slice {
+		src := reflect.ValueOf(i)
+		srcLen := src.Len()
+		if srcLen == 0 {
+			return nil
+		}
+		if chunkNum >= srcLen {
+			return do(i)
+		}
+		for i := 0; i < srcLen; i += chunkNum {
+			end := i + chunkNum
+			if end > srcLen {
+				end = srcLen
+			}
+			chunkSlick := src.Slice(i, end)
+			if err := do(chunkSlick.Interface()); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func TestChunk(t *testing.T) {
+	a := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14}
+	ChunkDo(a, 9, func(i interface{}) error {
+		t.Log(i)
+		return nil
+	})
+}
+
+func TestIntGen(t *testing.T) {
+	x := 234800
+	for i := 0; i < 211; i++ {
+		fmt.Println(x)
+		x++
+	}
+}
+
+func TestIntFormat(t *testing.T) {
+	fmt.Printf("%07d", 99999991)
+}
+
+func TestShuffle(t *testing.T) {
+	a := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14}
+	randNew := rand.New(rand.NewSource(time.Now().UnixNano()))
+	sort.Slice(a, func(i, j int) bool {
+		return randNew.Intn(1000) > 500
+	})
+	t.Log(a)
+	randNew = rand.New(rand.NewSource(time.Now().UnixNano()))
+	sort.Slice(a, func(i, j int) bool {
+		return randNew.Intn(1000) > 500
+	})
+	t.Log(a)
+	randNew = rand.New(rand.NewSource(time.Now().UnixNano()))
+	sort.Slice(a, func(i, j int) bool {
+		return randNew.Intn(1000) > 500
+	})
+	t.Log(a)
+}
+
+func TestPerm(t *testing.T) {
+	a := rand.Perm(10)
+	fmt.Println(a)
+	a = rand.Perm(10)
+	fmt.Println(a)
 }

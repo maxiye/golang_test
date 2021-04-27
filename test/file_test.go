@@ -1,14 +1,13 @@
 package test
 
 import (
+	"archive/zip"
 	"bufio"
-	"golang_test/util"
 	"io"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
-	"syscall"
 	"testing"
 )
 
@@ -54,7 +53,7 @@ func TestFileCheck(t *testing.T) {
 	_ = os.Remove("tmp2")
 }
 
-func TestFileRW(t *testing.T) {
+/*func TestFileRW(t *testing.T) {
 	// Exactly one of O_RDONLY, O_WRONLY, or O_RDWR must be specified. 只有O_APPEND在linux中会写不进去
 	file, _ := os.OpenFile("../tmp", os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModeAppend)
 	_, _ = file.Write([]byte("abcdefghijk"))
@@ -73,7 +72,7 @@ func TestFileRW(t *testing.T) {
 	_ = file.Close()
 	_ = os.Remove("../tmp")
 	t.Log(util.IoReadFile("tmp"))
-}
+}*/
 
 func TestBuffW(t *testing.T) {
 	file, _ := os.OpenFile("../tmp", os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModeAppend)
@@ -106,4 +105,16 @@ func TestUniqueFile(t *testing.T) {
 		}
 	}
 	t.Log(reflect.ValueOf(userSet).MapKeys())
+}
+
+func TestZipFile(t *testing.T) {
+	zipF, _ := os.OpenFile("/tmp/tmp.zip", os.O_CREATE|os.O_RDWR, 0644)
+	zipW := zip.NewWriter(zipF)
+	//defer zipW.Close()
+	//defer zipF.Close()
+	zo, _ := zipW.Create("aaa.csv")
+	s1, _ := os.Open("/tmp/e202012071638311_20210203150402_虚拟.csv")
+	io.Copy(zo, s1)
+	zipW.Close() // 必须显示调用才有数据写入
+	zipF.Close()
 }

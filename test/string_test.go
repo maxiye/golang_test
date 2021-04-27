@@ -1,10 +1,8 @@
 package test
 
 import (
+	"crypto/md5"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/stretchr/testify/assert"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -13,6 +11,10 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
+	"github.com/stretchr/testify/assert"
+	"github.com/tidwall/gjson"
 )
 
 func TestString(t *testing.T) {
@@ -128,4 +130,28 @@ func TestJsonSlice(t *testing.T) {
 	s1, _ := jsoniter.MarshalToString(a)
 	s2, _ := jsoniter.MarshalToString(b)
 	t.Log(s1, s2)
+}
+
+func TestStringIndex(t *testing.T) {
+	src := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	t.Log(string(src[1%26]))
+	t.Log(string(src[2%26]))
+	t.Log(string(src[26%26]))
+	t.Log(string(src[25%26]))
+	t.Log(string(src[27%26]))
+}
+
+func TestJsonStr(t *testing.T) {
+	s, err := jsoniter.Marshal("aaaa")
+	fmt.Println(string(s), err)
+}
+
+func TestCalcDS(tt *testing.T) {
+	salt := "w9p2p72p9octwd7lj1oa913hncq1k4td"
+	t := time.Now().Unix()
+	r := "J6h4er"
+	secret := fmt.Sprintf("salt=%s&t=%d&r=%s", salt, t, r)
+	s := fmt.Sprintf("%x", md5.Sum([]byte(secret)))
+	fmt.Printf("%d,%s,%s", t, r, s)
+	fmt.Println()
 }

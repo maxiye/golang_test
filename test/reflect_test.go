@@ -19,6 +19,25 @@ func TestTypeValue(t *testing.T) {
 	t.Log(tp == reflect.Map)
 }
 
+func TestTypeField(t *testing.T) {
+	type b struct {
+		b string
+	}
+	type aaa struct {
+		aa string
+		_  struct{}
+		b
+		bb string
+	}
+	ao := aaa{}
+	tp := reflect.TypeOf(ao)
+	t.Log(tp.NumField())
+	for i := 0; i < tp.NumField(); i++ {
+		t.Log(tp.Field(i))
+	}
+	t.Log(ao)
+}
+
 func TestReflectObj(t *testing.T) {
 	man := &Man{
 		Name: "aa",

@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func main() {
+func main2() {
 	var host, port, user, pass, database, charset string
 	var rewrite bool
 	flag.StringVar(&host, "h", "", "host，ip地址")
